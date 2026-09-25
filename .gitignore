@@ -1,0 +1,22 @@
+.env
+studyvault.db
+uploads/*
+!uploads/.gitkeep
+__pycache__/
+
+server.log
+server.err.log
+.playwright-mcp/
+
+# never commit secrets
+.env.*
+!.env.example
+.vercel
+*.log
+
+.vercel
+.env*
+
+.claude/settings.local.json
+*.pyc
+!.env.example

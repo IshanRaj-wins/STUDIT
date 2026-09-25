@@ -1,0 +1,59 @@
+/* StudyVault halo system: tokens from the ShaderGradient "halo" preset */
+:root {
+  --ink: #050505;
+  --ink-2: #0e0d0c;
+  --line: rgba(237, 232, 223, .10);
+  --bone: #ede8df;
+  --muted: rgba(237, 232, 223, .58);
+  --ember: #ff5005;
+  --sand: #dbba95;
+  --lilac: #d0bce1;
+  --serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { background: var(--ink); color: var(--bone); color-scheme: dark; }
+body { margin: 0; font-family: var(--sans); -webkit-font-smoothing: antialiased; background: var(--ink); overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--ember); color: #000; }
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 6px; }
+.serif { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+.muted { color: var(--muted); }
+.ember { color: var(--ember); }
+.sand { color: var(--sand); }
+.lilac { color: var(--lilac); }
+.wrap { width: min(1200px, 100% - 32px); margin-inline: auto; }
+
+/* canvas + static fallback (reduced motion / no WebGL) */
+#halo { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; display: block; }
+.halo-fallback {
+  position: fixed; inset: -10%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 46% at 30% 55%, rgba(255, 80, 5, .95), transparent 70%),
+    radial-gradient(30% 40% at 48% 38%, rgba(219, 186, 149, .85), transparent 70%),
+    radial-gradient(34% 40% at 58% 66%, rgba(208, 188, 225, .7), transparent 72%),
+    #000;
+  filter: blur(40px) saturate(1.1);
+}
+.grain { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: .09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: .6rem; height: 48px; padding: 0 22px; border-radius: 999px;
+  font: 500 15px/1 var(--sans); border: 1px solid transparent; cursor: pointer; transition: transform .25s cubic-bezier(.2,.7,.3,1), background .25s, color .25s, border-color .25s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-ember { background: var(--ember); color: #000; }
+.btn-ember:hover { background: #ff6a2b; }
+.btn-ghost { border-color: rgba(237,232,223,.25); color: var(--bone); background: rgba(5,5,5,.25); backdrop-filter: blur(10px); }
+.btn-ghost:hover { border-color: var(--bone); }
+.btn .arrow { transition: transform .25s; }
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* glass card */
+.glass { background: rgba(14, 13, 12, .62); border: 1px solid var(--line); border-radius: 22px; backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

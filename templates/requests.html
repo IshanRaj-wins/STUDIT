@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Request Board · StudyVault{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">Community powered</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1">🙋 Request <span class="text-gradient">Board</span></h1>
+      <p class="text-slate-500 mt-2 max-w-2xl leading-relaxed">Can't find something? Ask for it. Upvote the requests you need too, so the most-wanted material gets shared first. Have it? Fulfil it and help someone before their exam.</p>
+    </div>
+    <div class="flex gap-3 text-center">
+      <div class="rounded-2xl bg-white border border-slate-200 shadow-sm px-5 py-3 min-w-[6rem]"><div id="open-count" class="text-3xl font-display font-extrabold text-gradient">{{ reqs|rejectattr('fulfilled')|list|length }}</div><div class="text-xs text-slate-500 font-medium">open</div></div>
+      <div class="rounded-2xl bg-white border border-slate-200 shadow-sm px-5 py-3 min-w-[6rem]"><div class="text-3xl font-display font-extrabold text-emerald-600">{{ reqs|selectattr('fulfilled')|list|length }}</div><div class="text-xs text-slate-500 font-medium">fulfilled</div></div>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-3 mt-8">
+    <form id="req-form" class="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-indigo-900/5 p-6 space-y-4 h-fit lg:sticky lg:top-24">
+      <div><div class="font-display font-bold text-lg">📣 Ask the community</div><p class="text-sm text-slate-500 mt-0.5">{% if user %}Posting as {{ user.name }}. Takes 10 seconds.{% else %}Takes 10 seconds. <a href="/login?next=/requests" class="font-semibold text-indigo-600 underline">Sign in with your BMSCE email</a> to post.{% endif %}</p></div>
+      <div>
+        <label class="text-sm font-semibold">Subject</label>
+        <select id="r-subject" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white">{% for s in SUBJECTS %}<option>{{ s }}</option>{% endfor %}</select>
+      </div>
+      <div>
+        <label class="text-sm font-semibold">What do you need?</label>
+        <textarea id="r-topic" rows="3" required minlength="3" placeholder="e.g. Solved PYQs for Unit 4 — Transport Layer" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300"></textarea>
+      </div>
+      <div>
+        <label class="text-sm font-semibold">Your name</label>
+        <input id="r-name" value="{{ user.name if user else '' }}" readonly title="Taken from your signed-in account" class="cursor-not-allowed opacity-70 mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">
+      </div>
+      <button id="r-btn" class="w-full rounded-xl px-4 py-2.5 font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 shadow-md shadow-indigo-500/25 hover:shadow-lg hover:-translate-y-px transition">📣 Post request</button>
+    </form>
+
+    <div id="req-list" class="lg:col-span-2 space-y-3">
+      {% for q in reqs %}
+      <div class="req group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:shadow-indigo-500/5 hover:border-indigo-200 transition duration-300 p-4 sm:p-5 flex gap-3 sm:gap-4 items-start {{ 'opacity-70' if q.fulfilled }}" data-id="{{ q.id }}">
+        <button onclick="reqVote({{ q.id }}, this)" {{ 'disabled' if q.fulfilled }} class="shrink-0 w-14 rounded-xl border border-slate-200 py-2 text-center transition hover:-translate-y-px hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 disabled:hover:bg-white">
+          <div class="text-sm">▲</div><div class="font-bold" data-rv="{{ q.id }}">{{ q.upvotes }}</div>
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{{ q.subject }}</span>
+            {% if q.fulfilled %}<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Fulfilled</span>
+            {% elif q.upvotes >= 15 %}<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">🔥 High demand</span>{% endif %}
+          </div>
+          <div class="font-semibold mt-2 {{ 'line-through text-slate-500' if q.fulfilled }}">{{ q.topic }}</div>
+          <div class="text-xs text-slate-500 mt-1">asked by {{ q.requested_by or "Anonymous" }} · {{ q.created_at[:10] }}</div>
+        </div>
+        {% if not q.fulfilled %}
+        <a href="/add?subject={{ q.subject|urlencode }}&title={{ q.topic|urlencode }}" onclick="fulfil({{ q.id }})" class="shrink-0 self-center rounded-xl px-3 py-2 text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20 hover:shadow-lg hover:-translate-y-px transition">I have this</a>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="text-center bg-white border border-dashed border-slate-300 rounded-2xl py-12 px-6">
+        <div class="text-5xl">🎉</div>
+        <div class="font-semibold mt-3">No open requests</div>
+        <p class="text-sm text-slate-500 mt-1">Everything students asked for has been shared. Need something? Post the first request.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function reqVote(id, btn) {
+    const key = "sv_rv_" + id;
+    let done = false;
+    try { done = localStorage.getItem(key); } catch {}
+    if (done) return toast("You already backed this request 👍");
+    try {
+      const d = await postJSON(`/api/requests/${id}/upvote`);
+      try { localStorage.setItem(key, "1"); } catch {}
+      $(`[data-rv="${id}"]`).textContent = d.upvotes;
+      btn.classList.add("bg-indigo-50", "text-indigo-700");
+      toast("▲ Request upvoted");
+    } catch (e) { if (e.login) return; toast("Couldn't upvote", "err"); }
+  }
+
+  function fulfil(id) {
+    if (!SV_USER) return;  // /add will redirect to sign-in first
+    // mark fulfilled, then continue to the pre-filled Add form
+    navigator.sendBeacon ? navigator.sendBeacon(`/api/requests/${id}/fulfil`) : fetch(`/api/requests/${id}/fulfil`, { method: "POST", keepalive: true });
+  }
+
+  $("#req-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = $("#r-btn");
+    setLoading(btn, true, "Posting…");
+    try {
+      const r = await fetch("/api/requests", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: $("#r-subject").value, topic: $("#r-topic").value, requested_by: $("#r-name").value }) });
+      const d = await r.json();
+      if (r.status === 401) return needLogin(d.error);
+      if (!r.ok) throw new Error(d.error);
+      try { localStorage.setItem("sv_rv_" + d.id, "1"); } catch {}
+      toast("📣 Request posted! We'll let the community know.");
+      setTimeout(() => location.reload(), 700);
+    } catch (err) { toast(err.message || "Couldn't post request", "err"); setLoading(btn, false); }
+  });
+</script>
+{% endblock %}

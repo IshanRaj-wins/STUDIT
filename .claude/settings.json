@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "defaultMode": "auto",
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(py:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(git:*)",
+      "Bash(start:*)",
+      "Bash(open:*)",
+      "Bash(xdg-open:*)"
+    ],
+    "deny": [
+      "Read(./.env)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "if command -v python3 >/dev/null 2>&1; then python3 .claude/hooks/check_syntax.py; else python .claude/hooks/check_syntax.py; fi", "timeout": 15 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "if command -v python3 >/dev/null 2>&1; then python3 .claude/hooks/smoke_test.py; else python .claude/hooks/smoke_test.py; fi", "timeout": 30 }
+        ]
+      }
+    ]
+  }
+}

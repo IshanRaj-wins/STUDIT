@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="relative overflow-hidden bg-black text-[#ede8df]">
+  <div class="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"></div>
+  <div class="absolute -top-32 -right-20 w-[34rem] h-[26rem] rounded-full bg-[#ff5005]/70 blur-[90px]"></div>
+  <div class="absolute top-24 right-48 w-[18rem] h-[14rem] rounded-full bg-[#dbba95]/45 blur-[80px]"></div>
+  <div class="absolute -bottom-40 -left-32 w-[28rem] h-[28rem] rounded-full bg-[#d0bce1]/20 blur-3xl"></div>
+  <div class="relative max-w-6xl mx-auto px-4 pt-12 sm:pt-20 pb-24 sm:pb-28 text-center">
+    <div class="inline-flex items-center gap-2 text-xs font-semibold bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 mb-6 backdrop-blur">
+      <span class="rounded-full bg-[#ff5005] text-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">New</span>
+      ✨ AI study plans from real, upvoted resources
+    </div>
+    <h1 class="text-[2.6rem] leading-[1] sm:text-7xl" style="font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.02em">Every note, PYQ and reference.<br class="hidden sm:block">
+      <em class="text-[#dbba95]">One place.</em></h1>
+    <p class="mt-5 text-base sm:text-lg text-[#ede8df]/70 max-w-2xl mx-auto leading-relaxed">No more digging through WhatsApp groups and dead Drive links the night before exams. Find what toppers actually used, and let AI plan your prep.</p>
+    <div class="mt-9 max-w-2xl mx-auto relative group">
+      <div class="absolute -inset-1 rounded-[1.25rem] bg-gradient-to-r from-[#ff5005] via-[#dbba95] to-[#ff5005] opacity-40 blur-lg group-focus-within:opacity-80 transition"></div>
+      <div class="relative">
+        <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+        <input id="q" type="search" autocomplete="off" placeholder="Search 'normalization', 'OS PYQ 2023'…"
+          class="w-full rounded-2xl pl-14 pr-5 py-4 sm:py-5 bg-white text-slate-800 text-base sm:text-lg shadow-2xl outline-none">
+      </div>
+    </div>
+    <div id="chips" class="mt-6 -mx-4 px-4 flex sm:flex-wrap sm:justify-center gap-2 overflow-x-auto no-scrollbar">
+      <button data-chip="" class="chip shrink-0 text-sm rounded-full px-4 py-1.5 border border-white/25 bg-white text-black font-semibold transition">All</button>
+      {% for s in SUBJECTS %}<button data-chip="{{ s }}" class="chip shrink-0 text-sm rounded-full px-4 py-1.5 border border-white/25 bg-white/10 hover:bg-white/20 font-medium backdrop-blur transition">{{ s }}</button>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 -mt-12 relative">
+  <div class="grid grid-cols-2 md:grid-cols-4 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-black/5 divide-x divide-y md:divide-y-0 divide-slate-100 overflow-hidden">
+    {% for label, val, emoji in [("Resources shared", stats.resources, "📄"), ("Subjects covered", stats.subjects, "🧠"), ("Student contributors", stats.contributors, "🙌"), ("Total views", stats.views, "👁")] %}
+    <div class="text-center p-4 sm:p-6 border-slate-100">
+      <div class="text-2xl sm:text-4xl font-display font-extrabold text-gradient">{{ "{:,}".format(val) }}</div>
+      <div class="text-xs sm:text-sm text-slate-500 font-medium mt-1">{{ emoji }} {{ label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 pt-12">
+  <div class="flex items-end justify-between mb-4">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-widest text-orange-600">Hot right now</div>
+      <h2 class="text-2xl font-extrabold mt-1">🔥 Trending before exams</h2>
+      <p class="text-sm text-slate-500 mt-0.5">What students are opening and upvoting the most right now</p>
+    </div>
+  </div>
+  <div class="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 pb-3 pt-1 snap-x">
+    {% for t in trending %}
+    <a href="/resource/{{ t.id }}" class="group snap-start shrink-0 w-64 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-200 hover:-translate-y-1 transition duration-300 p-4 relative overflow-hidden">
+      <span class="absolute -top-3 -right-1 font-display text-6xl font-extrabold text-slate-100 group-hover:text-orange-100 transition select-none">{{ loop.index }}</span>
+      <span class="absolute top-3 right-3 text-xs font-bold text-orange-600">#{{ loop.index }}</span>
+      <span class="rounded-full text-xs px-2.5 py-0.5 font-medium border {{ {'Notes':'bg-blue-50 text-blue-700 border-blue-200','PYQ':'bg-rose-50 text-rose-700 border-rose-200'}.get(t.type, 'bg-slate-100 text-slate-700 border-slate-200') }}">{{ t.type }}</span>
+      <div class="relative font-semibold mt-3 line-clamp-2 leading-snug group-hover:text-orange-700">{{ t.title }}</div>
+      <div class="text-xs text-slate-500 mt-2">{{ t.subject }} · ▲ {{ t.upvotes }} · 👁 {{ t.views }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="bookmarks" class="max-w-6xl mx-auto px-4 pt-12 hidden scroll-mt-20">
+  <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">Saved on this device</div>
+  <h2 class="text-2xl font-extrabold mt-1 mb-4">🔖 Your bookmarks</h2>
+  <div id="bm-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+</section>
+
+<section id="browse" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-16">
+  <div class="flex flex-col md:flex-row md:items-end gap-4 justify-between mb-6">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">The library</div>
+      <h2 class="text-2xl font-extrabold mt-1">Browse resources</h2>
+      <p id="count" class="text-sm text-slate-500 mt-0.5">Loading…</p>
+    </div>
+    <div class="grid grid-cols-2 sm:flex gap-2 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <select id="subject" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
+        <option value="">All subjects</option>{% for s in SUBJECTS %}<option>{{ s }}</option>{% endfor %}
+      </select>
+      <select id="semester" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
+        <option value="">All semesters</option>{% for n in range(1, 9) %}<option value="{{ n }}">Semester {{ n }}</option>{% endfor %}
+      </select>
+      <select id="type" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
+        <option value="">All types</option>{% for t in TYPES %}<option>{{ t }}</option>{% endfor %}
+      </select>
+      <select id="sort" class="rounded-xl border-0 bg-indigo-50 text-indigo-700 px-3 py-2 text-sm font-semibold cursor-pointer">
+        <option value="top">▲ Top</option><option value="new">🆕 Newest</option><option value="views">👁 Most viewed</option>
+      </select>
+    </div>
+  </div>
+  <div id="grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ids = ["q", "subject", "semester", "type", "sort"];
+  let timer;
+
+  async function load() {
+    const params = new URLSearchParams();
+    ids.forEach((id) => { const v = $("#" + id).value.trim(); if (v) params.set(id, v); });
+    $("#grid").innerHTML = skeleton();
+    try {
+      const rows = await (await fetch("/api/resources?" + params)).json();
+      $("#count").textContent = `${rows.length} resource${rows.length === 1 ? "" : "s"} found`;
+      $("#grid").innerHTML = rows.length ? rows.map(cardHTML).join("") :
+        emptyState("🕵️", "Nothing here yet", "No resources match these filters. Be the hero: share one, or ask the community for it on the Request Board.", "/requests", "🙋 Request this resource");
+    } catch {
+      $("#grid").innerHTML = emptyState("⚠️", "Couldn't load resources", "Check your connection and try again.");
+    }
+    paintChips();
+  }
+
+  function paintChips() {
+    const s = $("#subject").value;
+    document.querySelectorAll(".chip").forEach((c) => {
+      const on = c.dataset.chip === s;
+      c.classList.toggle("bg-white", on); c.classList.toggle("text-black", on); c.classList.toggle("font-semibold", on);
+      c.classList.toggle("bg-white/10", !on);
+    });
+  }
+
+  async function loadBookmarks() {
+    const bm = getBookmarks();
+    $("#bookmarks").classList.toggle("hidden", !bm.length);
+    if (!bm.length) return;
+    const rows = await (await fetch("/api/resources?ids=" + bm.join(","))).json();
+    $("#bm-grid").innerHTML = rows.map(cardHTML).join("");
+  }
+
+  $("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 250); });
+  $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#browse").scrollIntoView({ behavior: "smooth" }); });
+  ["subject", "semester", "type", "sort"].forEach((id) => $("#" + id).addEventListener("change", load));
+  document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
+    $("#subject").value = c.dataset.chip; load();
+    $("#browse").scrollIntoView({ behavior: "smooth" });
+  }));
+  document.addEventListener("bookmarks-changed", loadBookmarks);
+
+  const qs = new URLSearchParams(location.search);
+  ids.forEach((id) => { if (qs.get(id)) $("#" + id).value = qs.get(id); });
+  load();
+  loadBookmarks().then(() => { if (location.hash === "#bookmarks") $("#bookmarks").scrollIntoView(); });
+</script>
+{% endblock %}

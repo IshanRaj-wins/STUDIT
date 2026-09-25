@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}StudyVault — Every note, PYQ and reference in one place{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <script>
+    try { if (localStorage.getItem("sv_theme") === "dark" || (!localStorage.getItem("sv_theme") && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark"); } catch {}
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { fontFamily: {
+      sans: ["Inter", "system-ui", "sans-serif"], display: ['"Plus Jakarta Sans"', "Inter", "system-ui", "sans-serif"] } } } };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+    h1, h2, h3, .font-display { font-family: "Plus Jakarta Sans", Inter, system-ui, sans-serif; letter-spacing: -0.02em; }
+    .spinner { width: 1rem; height: 1rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 9999px; display: inline-block; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; }
+    .fade-in { animation: fade .4s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .bg-grid { background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px); background-size: 32px 32px; }
+    .text-gradient { background: linear-gradient(90deg, #ff5005, #e0772f 55%, #b8875a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .page-glow { background: radial-gradient(60rem 30rem at 50% -10rem, rgba(255,80,5,.08), transparent 70%); }
+    /* halo palette: primary gradient buttons -> ember, no indigo/violet chrome */
+    .bg-gradient-to-r.from-indigo-600, .bg-gradient-to-r.from-violet-600 { background: #ff5005 !important; color: #0b0a09 !important; box-shadow: 0 6px 20px -6px rgba(255,80,5,.55) !important; }
+    .bg-gradient-to-r.from-indigo-600:hover, .bg-gradient-to-r.from-violet-600:hover { background: #ff6a2b !important; }
+    .brand-ring { width: 22px; height: 22px; border-radius: 50%; border: 4px solid #ff5005; box-shadow: 0 0 14px rgba(255,80,5,.45); }
+    .wordmark { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 1.6rem; letter-spacing: -.02em; }
+    ::selection { background: #ff5005; color: #000; }
+    a, button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #ff5005; outline-offset: 2px; }
+
+    /* ---------- dark mode: remap the light utility palette ---------- */
+    html.dark { color-scheme: dark; }
+    html.dark body { background: #0a0f1e; color: #e2e8f0; }
+    .dark .page-glow { background: radial-gradient(60rem 30rem at 50% -10rem, rgba(124,58,237,.18), transparent 70%); }
+    .dark .bg-white, .dark .disabled\:hover\:bg-white:disabled:hover { background-color: #111827; }
+    .dark .bg-white\/85 { background-color: rgba(10,15,30,.8); }
+    .dark .bg-slate-50 { background-color: #0a0f1e; }
+    .dark .bg-slate-100, .dark .hover\:bg-slate-100:hover, .dark .hover\:bg-slate-50:hover { background-color: #1e293b; }
+    .dark .text-slate-800, .dark .text-slate-700 { color: #e2e8f0; }
+    .dark .text-slate-600 { color: #cbd5e1; }
+    .dark .text-slate-500 { color: #94a3b8; }
+    .dark .border-slate-100, .dark .border-slate-200, .dark .border-slate-300 { border-color: #1f2a44; }
+    .dark input, .dark select, .dark textarea { background-color: #0f172a; color: #e2e8f0; }
+    .dark input::placeholder, .dark textarea::placeholder { color: #64748b; }
+    .dark .text-gradient { background: linear-gradient(90deg, #ff7a3d, #dbba95); -webkit-background-clip: text; background-clip: text; }
+    .dark .bg-violet-50, .dark .hover\:bg-violet-50:hover { background-color: rgba(139,92,246,.14); }
+    .dark .hover\:bg-violet-100:hover { background-color: rgba(139,92,246,.24); }
+    .dark .bg-indigo-50, .dark .hover\:bg-indigo-50:hover { background-color: rgba(99,102,241,.16); }
+    .dark .bg-blue-50 { background-color: rgba(59,130,246,.14); }
+    .dark .bg-rose-50 { background-color: rgba(244,63,94,.14); }
+    .dark .bg-amber-50 { background-color: rgba(245,158,11,.14); }
+    .dark .bg-red-50 { background-color: rgba(239,68,68,.14); }
+    .dark .bg-emerald-50 { background-color: rgba(16,185,129,.14); }
+    .dark .bg-orange-50 { background-color: rgba(249,115,22,.14); }
+    .dark .hover\:bg-green-50:hover { background-color: rgba(34,197,94,.14); }
+    .dark .border-violet-200, .dark .border-indigo-200, .dark .hover\:border-indigo-300:hover { border-color: rgba(139,92,246,.35); }
+    .dark .border-blue-200, .dark .border-rose-200, .dark .border-amber-200, .dark .border-red-200,
+    .dark .border-emerald-200, .dark .border-orange-200 { border-color: rgba(148,163,184,.2); }
+    .dark .text-violet-700, .dark .text-violet-800, .dark .text-violet-900, .dark .hover\:text-violet-700:hover { color: #c4b5fd; }
+    .dark .text-indigo-700, .dark .text-indigo-600, .dark .hover\:text-indigo-700:hover, .dark .hover\:text-indigo-600:hover, .dark .group:hover .group-hover\:text-indigo-700 { color: #a5b4fc; }
+    .dark .text-blue-700 { color: #93c5fd; } .dark .text-rose-700 { color: #fda4af; } .dark .text-amber-700 { color: #fcd34d; }
+    .dark .text-red-700 { color: #fca5a5; } .dark .text-emerald-700 { color: #6ee7b7; } .dark .text-orange-700, .dark .text-orange-600 { color: #fdba74; }
+    .dark .shadow-sm, .dark .shadow-md { box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+    .dark .text-slate-100, .dark .group:hover .group-hover\:text-orange-100 { color: #1e293b; }
+    .dark .text-slate-300 { color: #475569; } .dark .text-slate-400 { color: #64748b; }
+    .dark .ring-white { --tw-ring-color: #0a0f1e; }
+    .dark .border-rose-200, .dark .hover\:border-orange-200:hover, .dark .hover\:border-violet-300:hover { border-color: rgba(244,114,182,.3); }
+    .dark .group:hover .group-hover\:text-orange-700 { color: #fdba74; }
+    .dark .text-rose-600 { color: #fb7185; }
+    html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]), html.dark .divide-slate-100 > * { border-color: #1f2a44; }
+    .dark input[type=range] { background-color: transparent; }
+    .dark .ring-violet-300 { --tw-ring-color: rgba(139,92,246,.5); }
+    @media print { nav, footer, #toasts, form, .no-print { display: none !important; } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+  <div class="page-glow pointer-events-none fixed inset-x-0 top-0 h-[40rem] -z-10"></div>
+  <nav class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <span class="brand-ring group-hover:scale-110 transition"></span>
+        <span class="hidden sm:inline wordmark">StudyVault</span>
+      </a>
+      {% set p = request.path %}
+      <div class="flex items-center gap-0.5 sm:gap-1 text-sm font-medium">
+        <a href="/browse" class="px-2.5 sm:px-3 py-2 rounded-lg transition hover:bg-slate-100 {{ 'text-indigo-600 bg-indigo-50' if p == '/browse' else 'text-slate-600' }}" title="Browse">🔎<span class="hidden md:inline"> Browse</span></a>
+        <a href="/ask" class="px-2.5 sm:px-3 py-2 rounded-lg transition hover:bg-violet-50 {{ 'text-violet-700 bg-violet-50' if p == '/ask' else 'text-slate-600' }}" title="Exam Prep AI">✨<span class="hidden md:inline"> Exam Prep AI</span></a>
+        <a href="/requests" class="px-2.5 sm:px-3 py-2 rounded-lg transition hover:bg-slate-100 {{ 'text-indigo-600 bg-indigo-50' if p == '/requests' else 'text-slate-600' }}" title="Request Board">🙋<span class="hidden md:inline"> Requests</span></a>
+        <a href="/browse#bookmarks" class="px-2.5 sm:px-3 py-2 rounded-lg transition hover:bg-slate-100 text-slate-600" title="Bookmarks">🔖<span class="hidden lg:inline"> Saved</span></a>
+        <button id="theme-btn" type="button" onclick="toggleTheme()" class="px-2.5 sm:px-3 py-2 rounded-lg transition hover:bg-slate-100 text-slate-600" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <a href="/add" class="ml-1 rounded-xl px-3 sm:px-4 py-2 font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-px transition">+<span class="hidden sm:inline"> Share</span></a>
+        {% if user %}
+        <a href="/dashboard" title="{{ user.email }}" class="ml-1 w-9 h-9 rounded-full grid place-items-center font-bold text-sm text-black bg-[#ff5005] ring-2 ring-white shadow-md hover:scale-105 transition {{ 'ring-[#ff5005]/40' if p == '/dashboard' }}">{{ user.name[:1]|upper }}</a>
+        {% else %}
+        <a href="/login?next={{ request.path|urlencode }}" class="ml-1 rounded-xl px-3 py-2 font-semibold text-slate-700 border border-slate-200 hover:bg-slate-100 transition">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1">{% block content %}{% endblock %}</main>
+
+  <footer class="relative mt-16 border-t border-slate-200 bg-white">
+    <div class="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[#ff5005] to-transparent"></div>
+    <div class="max-w-6xl mx-auto px-4 py-12 grid gap-8 md:grid-cols-3 items-start">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="brand-ring"></span>
+          <span class="wordmark">StudyVault</span>
+        </div>
+        <p class="text-sm text-slate-500 mt-3">Students sharing with students. Free, forever.</p>
+        <div class="flex gap-4 mt-4 text-sm font-medium text-slate-600">
+          <a href="/browse" class="hover:text-indigo-600">Browse</a><a href="/ask" class="hover:text-indigo-600">Exam Prep AI</a><a href="/requests" class="hover:text-indigo-600">Requests</a>
+        </div>
+      </div>
+      <div id="sdg" class="md:col-span-2 flex gap-4 items-start rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div class="shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br from-[#E5243B] to-[#C5192D] text-white flex flex-col items-center justify-center font-extrabold leading-none shadow-md shadow-rose-500/20">
+          <span class="text-2xl font-display">4</span><span class="text-[9px] tracking-widest mt-1">SDG</span>
+        </div>
+        <div>
+          <div class="font-display font-bold">Supporting UN SDG 4 — Quality Education</div>
+          <p class="text-sm text-slate-500 mt-1 leading-relaxed">Targets 4.3 &amp; 4.a: equal access to learning resources. A student in a small-town college gets the same notes, PYQs and AI study plan as a topper in a metro. No paywalls, no WhatsApp gatekeeping, and the Request Board closes gaps in what's available.</p>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-slate-100 py-4 text-center text-xs text-slate-500">Built for students, by students · © 2026 StudyVault</div>
+  </footer>
+
+  <div id="toasts" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-2 items-end pointer-events-none"></div>
+  <script>const SV_USER = {{ user|tojson }};</script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

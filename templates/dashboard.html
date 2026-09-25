@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Your dashboard · StudyVault{% endblock %}
+{% block content %}
+<section class="relative overflow-hidden bg-black text-[#ede8df]">
+  <div class="absolute inset-0 opacity-90" style="background: radial-gradient(40% 70% at 85% 30%, rgba(255,80,5,.85), transparent 70%), radial-gradient(30% 60% at 70% 80%, rgba(219,186,149,.6), transparent 70%), radial-gradient(25% 50% at 95% 90%, rgba(208,188,225,.55), transparent 70%); filter: blur(30px);"></div>
+  <div class="relative max-w-6xl mx-auto px-4 py-12 sm:py-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div>
+      <div class="text-xs uppercase tracking-[.2em] text-[#dbba95]" style="font-family:'Geist Mono',monospace">Dashboard · {{ user.email }}</div>
+      <h1 class="text-5xl sm:text-6xl mt-3 leading-none" style="font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.02em">Hey {{ user.name.split(' ')[0] }}, <em>ready to study?</em></h1>
+      <p class="mt-3 text-[#ede8df]/70 max-w-xl">Everything you've shared and asked for, plus your saved resources.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="/add" class="rounded-full px-5 py-3 font-semibold bg-[#ff5005] text-black hover:-translate-y-0.5 transition">+ Share a resource</a>
+      <a href="/ask" class="rounded-full px-5 py-3 font-semibold border border-[#ede8df]/30 bg-black/30 backdrop-blur hover:border-[#ede8df] transition">✨ Exam Prep AI</a>
+      <button onclick="signOut(this)" class="rounded-full px-5 py-3 font-semibold text-[#ede8df]/70 hover:text-[#ede8df] transition">Sign out</button>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    {% for label, val in [("Your uploads", impact.uploads), ("Upvotes earned", impact.upvotes), ("Times your notes were opened", impact.views), ("Requests posted", reqs|length)] %}
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+      <div class="text-4xl font-display font-extrabold {{ 'text-[#ff5005]' if loop.index == 2 }}">{{ val }}</div>
+      <div class="text-xs text-slate-500 mt-1 font-medium">{{ label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="grid gap-8 lg:grid-cols-3 mt-10">
+    <div class="lg:col-span-2">
+      <div class="flex items-end justify-between">
+        <h2 class="text-xl font-bold">📤 Your uploads</h2>
+        <a href="/add" class="text-sm font-semibold text-[#c2410c] hover:underline">Share another →</a>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 mt-4" id="mine"></div>
+    </div>
+    <div>
+      <div class="flex items-end justify-between">
+        <h2 class="text-xl font-bold">🙋 Your requests</h2>
+        <a href="/requests" class="text-sm font-semibold text-[#c2410c] hover:underline">Board →</a>
+      </div>
+      <div class="space-y-3 mt-4">
+        {% for q in reqs %}
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 {{ 'opacity-60' if q.fulfilled }}">
+          <div class="flex items-center gap-2 text-xs"><span class="font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{{ q.subject }}</span>
+            {% if q.fulfilled %}<span class="text-emerald-700 font-semibold">✅ Fulfilled</span>{% else %}<span class="text-slate-500">▲ {{ q.upvotes }}</span>{% endif %}</div>
+          <div class="font-semibold mt-2 text-sm">{{ q.topic }}</div>
+        </div>
+        {% else %}
+        <div class="text-center bg-white border border-dashed border-slate-300 rounded-2xl py-8 px-4">
+          <div class="text-4xl">📭</div>
+          <p class="text-sm text-slate-500 mt-2">Missing a PYQ or lab manual? Ask the batch.</p>
+          <a href="/requests" class="inline-block mt-3 text-sm font-semibold rounded-full px-4 py-2 bg-slate-900 text-white">Post a request</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <h2 class="text-xl font-bold">🔖 Saved for later</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4" id="saved"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if SUPABASE.ready %}
+<script>window.SV_AUTH = { url: {{ SUPABASE.url|tojson }}, key: {{ SUPABASE.key|tojson }} };</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+{% endif %}
+<script>
+  const MINE = {{ mine|tojson }};
+  $("#mine").innerHTML = MINE.length ? MINE.map(cardHTML).join("") :
+    emptyState("📤", "You haven't shared anything yet", "Your notes could be someone's lifesaver the night before the exam. Upload a PDF or paste a link.", "/add", "+ Share your first resource");
+
+  async function loadSaved() {
+    const bm = getBookmarks();
+    if (!bm.length) {
+      $("#saved").innerHTML = emptyState("🔖", "Nothing saved yet", "Tap 🔖 on any resource to keep it here for exam week.", "/browse", "Browse the vault");
+      return;
+    }
+    const rows = await (await fetch("/api/resources?ids=" + bm.join(","))).json();
+    $("#saved").innerHTML = rows.map(cardHTML).join("");
+  }
+  loadSaved();
+  document.addEventListener("bookmarks-changed", loadSaved);
+
+  async function signOut(btn) {
+    setLoading(btn, true, "Signing out…");
+    if (window.svSignOut) return svSignOut();
+    await fetch("/api/auth/logout", { method: "POST" });
+    location.href = "/";
+  }
+</script>
+{% endblock %}
