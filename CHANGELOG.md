@@ -1,4 +1,4 @@
-# StudyVault — Changelog
+# Studit — Changelog
 
 One line per major change or bug. Newest section at the bottom.
 
@@ -51,7 +51,6 @@ One line per major change or bug. Newest section at the bottom.
 - BUG fixed: Vercel login said "Auth isn't configured" despite env vars set; values now stripped of quotes/whitespace/\r, login card lists which check fails (no values shown).
 
 ## Pending / ideas
-- Secondary pages (cards, /ask, /requests) still have some indigo accents; they could move to the halo palette.
 - Demo data: signed up ishanraj.cs25@bmsce.ac.in (awaiting email confirm); uploaded PDF resource #32 DBMS Unit 3 Normalization Notes as Ishan Raj
 - Demo data: uploaded DSA-BASICS.pdf (BMSCE Unit 1 slides) as resource #33, DSA Sem 3, by Ishan Raj
 - Security: secure/HttpOnly/SameSite session cookies, security headers (nosniff, DENY framing, HSTS on Vercel), per-IP AI rate limit (15/min).
@@ -65,3 +64,24 @@ One line per major change or bug. Newest section at the bottom.
 - Security: weak/placeholder FLASK_SECRET_KEY replaced by a random one; open redirect via `/\` in ?next= fixed; upvotes/views/request votes once per session.
 - Security: uploader/requester name forced to the signed-in user; form validated before a PDF is saved.
 
+## UI overhaul (halo everywhere)
+- All app pages moved to the dark halo system (`static/app.css`); light theme, theme toggle and the dark-remap CSS removed.
+- Emoji icons replaced by Lucide line icons; `icons()` helper renders them after dynamic HTML.
+- One shared floating pill nav (`templates/_nav.html`) with a sliding active thumb, plus a mobile bottom tab bar.
+- `static/glyph.js`: glyph-dither canvas art (pixels dissolving into `+ □ · ▪`), used in headers, bento, empty states, AI loading, 404.
+- Glyph "burst" on upvote/save/share; cursor-spotlight cards; command search with `/` shortcut; segmented sort control.
+- Landing: problem pin shortened (240% → 130%), horizontal scroll-jack replaced by a bento grid, scroll progress bar, glyph core.
+- BUG fixed: `canvas[data-glyph]{display:block}` beat Tailwind `hidden` on mobile; the rule now uses `:where()`.
+- Footer redesigned: SDG 4 card with glyph book, 3 link columns, back-to-top, oversized serif wordmark; red SDG block removed.
+
+## Rename + phone performance
+- Renamed StudyVault → Studit in all user-facing text (DB file and localStorage keys kept, so data and bookmarks survive).
+- Footer replaced: "Exam soon?" search panel (GET /browse?q=) with subject chips + slim bar (links, SDG 4 chip, ©).
+- Perf: full Lucide CDN (82KB) replaced by `static/icons.js`, a 7KB subset of the 37 icons used; app pages ~300ms faster first paint.
+- Perf (phones): WebGL at 0.65x resolution and 30fps, fewer particles and mesh segments, three.js lazy-loaded after first paint behind the CSS halo.
+- Perf (phones): no Lenis, no blur() tweens, no backdrop blur over WebGL, no grain overlay; glyph art at 20fps, paused while scrolling.
+- Perf result (mid-range phone emulation, 4x CPU, slow 4G): landing scroll 46 → 60fps, p95 frame 50 → 33ms; app pages steady 60fps.
+- UX: hover effects only on hover-capable devices; 42px touch targets; press feedback on touch; scrim behind the problem titles.
+- BUG fixed: footer search button overflowed on narrow phones (grid column min-width).
+
+- Security audit 3: no new issues (pip-audit clean, all innerHTML escaped, CSRF/traversal/SQLi/open-redirect probes blocked, 0 CSP errors); redeployed Studit to study-recon.vercel.app. studit.vercel.app is taken by another account.

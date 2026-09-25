@@ -1,37 +1,23 @@
 ---
 name: ui-polish
-description: Design system and UI rules for StudyVault. Use whenever creating or editing any template, CSS, or frontend JS.
+description: Design system and UI rules for Studit. Use whenever creating or editing any template, CSS, or frontend JS.
 ---
-# StudyVault UI system (15 marks — make it look like a real product)
+# Studit UI system: "halo" (dark-only, matches the landing hero)
 
-## Setup (base.html head)
-- `<script src="https://cdn.tailwindcss.com"></script>`
-- Google Font **Inter** (400/500/600/700) with `font-family: Inter, system-ui, sans-serif`
-- `<meta name="viewport" content="width=device-width, initial-scale=1">`
+## Files
+- `static/halo.css`: tokens (`--ink --bone --muted --ember --sand --lilac --line`, `--serif --sans --mono`), `.btn .btn-ember .btn-ghost .glass`, pill nav + mobile tab bar, `.burst`, glyph canvas glow.
+- `static/app.css`: app components: `.sv-card` (cursor spotlight), `.sv-input .sv-select .sv-label .sv-range .sv-check .sv-file`, `.cmd` (command search), `.chip-s`, `.seg` (segmented control), `.type-dot`, `.meta`, `.tag-s`, `.icon-btn` (+`data-tip` tooltip, `.on`), `.ai-badge` + `.shimmer`, `.toast`, `.skel`, `.mesh-bg`, `.page-top`, `.eyebrow-s`, `.h-serif`.
+- `templates/_nav.html`: the ONE navbar (floating pill + sliding thumb; bottom tab bar under 720px). Included by `base.html` and `landing.html`.
+- `static/glyph.js`: glyph-dither art. `<canvas data-glyph="search|sparkles|book|vault|hand|bookmark|send|files|unlink|flame|inbox|text:404" data-size="150">`.
 
-## Tokens
-- Background `bg-slate-50`, text `text-slate-800`, muted `text-slate-500`
-- Primary: indigo → violet gradient (`bg-gradient-to-r from-indigo-600 to-violet-600`)
-- Cards: `bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition`
-- Buttons: primary gradient `rounded-xl px-4 py-2 font-semibold text-white`; secondary `bg-white border`
-- AI elements always use a ✨ and a violet accent (`bg-violet-50 text-violet-700 border-violet-200`)
-- Type badges (pill `rounded-full text-xs px-2.5 py-0.5 font-medium`):
-  Notes=blue, PYQ=rose, Reference=amber, Video=red, Lab Manual=emerald, Syllabus=slate
-
-## Layout
-- Sticky top nav: logo "📚 StudyVault", links: Browse · ✨ Exam Prep AI · Request Board · + Add (primary button)
-- Home hero: gradient background, big headline ("Every note, PYQ and reference. One place."),
-  large rounded search bar, quick-filter subject chips below it
-- Stats bar under hero (3–4 numbers, big bold)
-- Grid: `grid gap-4 sm:grid-cols-2 lg:grid-cols-3`
-- Card content: type badge + semester · title (font-semibold, 2-line clamp) · subject · tags as small chips ·
-  footer row: ▲ upvotes, 👁 views, 🔖 bookmark, share
-- Footer with SDG 4 "Quality Education" badge and one line about equal access
-
-## Must-haves
-- Empty states with an emoji + helpful sentence + CTA (never a blank area)
-- Loading spinner (animated border) on every AI button; disable button while loading
-- Toast notifications (bottom-right, auto-hide 2.5s) for upvote, bookmark, add, copy
-- Mobile first: everything usable at 375px; nav collapses to icons
-- Filters update results without full page reload (fetch `/api/resources?...`) with a 250ms debounce on search
-- Consistent spacing: sections `py-10`, container `max-w-6xl mx-auto px-4`
+## Rules
+- Dark only. Never use white/slate/indigo/violet Tailwind surfaces. Tailwind theme colours: `ink bone ember sand lilac` (`text-bone/55`, `border-bone/10`).
+- Type: Instrument Serif for headings (`.h-serif`, `em` = italic sand), Geist body, Geist Mono for labels/meta (uppercase, tracked).
+- **No emoji as icons.** Small icons are Lucide (`<i data-lucide="name">`) served from `static/icons.js` (a subset: add new icon names there, from lucide-static@0.469.0); call `icons()` after any dynamic `innerHTML` (it also mounts glyph canvases).
+- Glyph art only in large spots (≥ 64px): headers, empty states (`emptyState(glyphName, …)`), AI loading (`data-boost="1"`), 404.
+- Micro-interaction: `burst(el)` on upvote / save / share.
+- Type colours (`TYPE_COLOR` in app.js): Notes=sand, PYQ=ember, Reference=lilac, Video=#ff8a52, Lab Manual=#9fd3b0, Syllabus=muted.
+- AI: lilac accent, `aiBadge(mode)` (shimmer "AI generated" / sand "Smart offline mode"), spinner via `setLoading`.
+- Pages start with `.page-top` (clears the fixed nav). Cards grid: `grid gap-3 sm:grid-cols-2 lg:grid-cols-3`. Container `max-w-6xl mx-auto px-4`.
+- Everything usable at 375px with no horizontal scroll; respect `prefers-reduced-motion`.
+- Phones (≤720px) get lighter effects: no backdrop blur over WebGL, no blur() tweens, glyphs at 20fps. Keep new effects cheap there.

@@ -1,5 +1,5 @@
-// StudyVault landing: ShaderGradient "halo" plane ported to raw three.js, plus GSAP scroll story.
-import * as THREE from "three";
+// Studit landing: ShaderGradient "halo" plane ported to raw three.js, plus GSAP scroll story.
+let THREE;   // loaded lazily (dynamic import) so parsing three.js never blocks first paint
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile = matchMedia("(max-width: 860px)").matches;
@@ -89,9 +89,9 @@ void main(){
 function startWebGL() {
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, powerPreference: "high-performance" });
   } catch { return false; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.25 : 1.5));
+  renderer.setPixelRatio(isMobile ? 0.65 : Math.min(devicePixelRatio, 1.5));   // phones: the halo is a soft gradient, so sub-1x is invisible and ~60% cheaper
   renderer.setClearColor(0x000000, 1);
 
   const scene = new THREE.Scene();
@@ -103,7 +103,7 @@ function startWebGL() {
     uBright: { value: S.bright },
     uC1: { value: new THREE.Color("#ff5005") }, uC2: { value: new THREE.Color("#dbba95") }, uC3: { value: new THREE.Color("#d0bce1") },
   };
-  const seg = isMobile ? 160 : 300;
+  const seg = isMobile ? 96 : 300;
   const plane = new THREE.Mesh(
     new THREE.PlaneGeometry(18, 18, seg, seg),
     new THREE.ShaderMaterial({ vertexShader: vertex, fragmentShader: fragment, uniforms, side: THREE.DoubleSide })
@@ -114,7 +114,7 @@ function startWebGL() {
   scene.add(plane);
 
   // dust: ember/sand motes drifting in front of the halo
-  const COUNT = isMobile ? 1400 : 4000;
+  const COUNT = isMobile ? 600 : 4000;
   const pos = new Float32Array(COUNT * 3), col = new Float32Array(COUNT * 3), seed = new Float32Array(COUNT);
   const palette = [new THREE.Color("#ff5005"), new THREE.Color("#dbba95"), new THREE.Color("#ede8df")];
   for (let i = 0; i < COUNT; i++) {
@@ -153,8 +153,11 @@ function startWebGL() {
   const clock = new THREE.Clock();
   let running = true;
   document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running) { clock.getDelta(); loop(); } });
-  function loop() {
+  let lastFrame = 0;
+  function loop(now = 0) {
     if (!running) return;
+    if (isMobile && !reduce && now - lastFrame < 32) { requestAnimationFrame(loop); return; }   // phones: 30 fps
+    lastFrame = now;
     const dt = Math.min(clock.getDelta(), .05);
     uniforms.uTime.value += reduce ? 0 : dt;
     mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
@@ -173,10 +176,19 @@ function startWebGL() {
   return true;
 }
 
-if (!startWebGL()) {
-  canvas.hidden = true;
-  document.querySelector(".halo-fallback").hidden = false;
-}
+// Instant hero: show the static CSS halo first, then boot WebGL when the main thread is idle
+// and cross-fade to it. Keeps three.js parse + shader compile out of the first second on phones.
+const fallback = document.querySelector(".halo-fallback");
+fallback.hidden = false;
+const whenIdle = window.requestIdleCallback || ((f) => setTimeout(f, 300));
+const bootWebGL = () => whenIdle(async () => {
+  try { THREE = await import("three"); } catch { canvas.hidden = true; return; }
+  if (!startWebGL()) { canvas.hidden = true; return; }
+  fallback.style.transition = "opacity 1.2s ease";
+  requestAnimationFrame(() => (fallback.style.opacity = 0));
+  setTimeout(() => (fallback.hidden = true), 1300);
+}, { timeout: 2500 });
+if (document.readyState === "complete") bootWebGL(); else addEventListener("load", bootWebGL);
 addEventListener("pointermove", (e) => { mouse.tx = e.clientX / innerWidth - .5; mouse.ty = -(e.clientY / innerHeight - .5); });
 
 // ---------------------------------------------------------------- split headline
@@ -205,8 +217,8 @@ function typeIt(el) {
 }
 
 // ---------------------------------------------------------------- scroll story
-const nav = document.querySelector(".nav");
-addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 30), { passive: true });
+const bar = document.querySelector(".progress");
+addEventListener("scroll", () => { if (bar) bar.style.transform = `scaleX(${scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)})`; }, { passive: true });
 
 function intro() {
   document.body.classList.remove("is-loading");
@@ -227,7 +239,8 @@ function story() {
   gsap.registerPlugin(ScrollTrigger);
 
   // Lenis smooth scroll driven by GSAP's ticker
-  if (window.Lenis) {
+  // phones scroll natively; Lenis there only doubles ScrollTrigger updates per frame
+  if (window.Lenis && !isMobile) {
     const lenis = new Lenis({ lerp: .09, smoothWheel: true });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
@@ -243,30 +256,24 @@ function story() {
 
   // problem: chips swirl into the halo, which collapses into a core
   const chips = gsap.utils.toArray(".chip");
-  const tl = gsap.timeline({ scrollTrigger: { trigger: ".problem", start: "top top", end: isMobile ? "+=160%" : "+=240%", scrub: 1, pin: true } });
-  tl.from(chips, { opacity: 0, scale: .6, filter: "blur(10px)", stagger: .05, duration: .5, ease: "power2.out" }, 0)
+  const tl = gsap.timeline({ scrollTrigger: { trigger: ".problem", start: "top top", end: isMobile ? "+=100%" : "+=130%", scrub: 1, pin: true } });
+  // blur() filters repaint every frame: desktop only
+  const blurIn = isMobile ? {} : { filter: "blur(10px)" }, blurOut = isMobile ? {} : { filter: "blur(6px)" };
+  tl.from(chips, { opacity: 0, scale: .6, ...blurIn, stagger: .05, duration: .5, ease: "power2.out" }, 0)
     .from(".p-line-1, .p-title-1", { opacity: 0, y: 40, duration: .4 }, .1)
-    .to(chips, { x: 0, y: 0, rotation: () => gsap.utils.random(-40, 40), scale: .05, opacity: 0, filter: "blur(6px)",
+    .to(chips, { x: 0, y: 0, rotation: () => gsap.utils.random(-40, 40), scale: .05, opacity: 0, ...blurOut,
                  duration: 1, stagger: .04, ease: "power3.in" }, .9)
     .to(S, { pull: 1, strength: 6.5, rotZ: 140, dist: 2.7, duration: 1.2, ease: "power2.inOut" }, .9)
     .to(".p-line-1, .p-title-1", { opacity: 0, y: -40, scale: .96, duration: .4 }, 1.5)
+    .fromTo(".p-core", { opacity: 0, scale: .4 }, { opacity: .55, scale: 1, duration: .8, ease: "power2.out" }, 1.3)
     .to(".p-title-2", { opacity: 1, duration: .5 }, 1.8)
-    .from(".p-title-2", { scale: 1.12, filter: "blur(12px)", duration: .5 }, 1.8)
+    .from(".p-title-2", { scale: 1.12, ...(isMobile ? {} : { filter: "blur(12px)" }), duration: .5 }, 1.8)
     .to(S, { pull: .15, strength: 3.2, rotZ: 200, dist: 4.4, duration: 1, ease: "power2.out" }, 2.1)
     .to(".veil", { opacity: .45, duration: .6 }, 2.4);
 
-  // features: horizontal scroll on desktop, gentle reveals on mobile
-  const mm = gsap.matchMedia();
-  mm.add("(min-width: 861px)", () => {
-    const track = document.querySelector(".track");
-    const dist = () => track.scrollWidth - innerWidth;
-    gsap.timeline({ scrollTrigger: { trigger: ".features", start: "top top", end: () => "+=" + dist(), scrub: 1, pin: true, invalidateOnRefresh: true } })
-      .to(track, { x: () => -dist(), ease: "none" }, 0)
-      .to(S, { posX: 1.6, rotZ: 250, strength: 2.4, ease: "none" }, 0);
-  });
-  mm.add("(max-width: 860px)", () => {
-    gsap.utils.toArray(".panel").forEach((p) => gsap.from(p, { y: 60, opacity: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: p, start: "top 85%" } }));
-  });
+  // features: bento tiles reveal (no scroll-jacking); halo drifts while the grid passes
+  gsap.utils.toArray(".tile").forEach((t, i) => gsap.from(t, { y: 60, opacity: 0, duration: 1.1, ease: "expo.out", delay: (i % 3) * .08, scrollTrigger: { trigger: t, start: "top 88%" } }));
+  gsap.to(S, { posX: 1.6, rotZ: 250, strength: 2.4, ease: "none", scrollTrigger: { trigger: ".features", start: "top bottom", end: "bottom top", scrub: true } });
   ScrollTrigger.create({ trigger: ".features", start: "top 60%", once: true, onEnter: () => document.querySelectorAll("[data-typed]").forEach(typeIt) });
 
   // numbers

@@ -1,75 +1,68 @@
 {% extends "base.html" %}
-{% block title %}Share a resource · StudyVault{% endblock %}
+{% block title %}Share a resource · Studit{% endblock %}
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-10">
-  <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">Give back</div>
-  <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1">Share a <span class="text-gradient">resource</span></h1>
-  <p class="text-slate-500 mt-1">Your notes could save someone's semester. Add a link or upload a PDF.</p>
-
-  {% if error %}<div class="mt-5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 text-sm font-medium">⚠️ {{ error }}</div>{% endif %}
-
-  <form method="post" enctype="multipart/form-data" class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-indigo-900/5 p-6 sm:p-8 space-y-5">
+<div class="max-w-3xl mx-auto px-4 page-top">
+  <div class="flex items-end justify-between gap-6">
     <div>
-      <label class="text-sm font-semibold">Title *</label>
-      <input name="title" id="title" required value="{{ form.get('title', '') }}" placeholder="e.g. DBMS Unit 3 — Normalization handwritten notes"
-        class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">
+      <div class="eyebrow-s"><i data-lucide="upload"></i> Give back</div>
+      <h1 class="h-serif text-5xl sm:text-6xl mt-3">Share a <em>resource</em></h1>
+      <p class="text-bone/60 mt-3">Your notes could save someone's semester. Add a link or upload a PDF.</p>
+    </div>
+    <canvas data-glyph="files" data-size="130" class="hidden sm:block shrink-0"></canvas>
+  </div>
+
+  {% if error %}<div class="mt-6 rounded-xl border border-[rgba(255,90,90,.35)] bg-[rgba(255,90,90,.08)] text-[#ffb4a8] px-4 py-3 text-sm flex items-center gap-2"><i data-lucide="circle-alert"></i> {{ error }}</div>{% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="mt-8 sv-card p-6 sm:p-8 space-y-6">
+    <div>
+      <label class="sv-label" for="title">Title *</label>
+      <input name="title" id="title" required value="{{ form.get('title', '') }}" placeholder="e.g. DBMS Unit 3 Normalization handwritten notes" class="sv-input">
     </div>
     <div>
-      <label class="text-sm font-semibold">Description</label>
-      <textarea name="description" id="description" rows="3" placeholder="What's inside? Which units/topics does it cover?"
-        class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">{{ form.get('description', '') }}</textarea>
+      <label class="sv-label" for="description">Description</label>
+      <textarea name="description" id="description" rows="3" placeholder="What's inside? Which units or topics does it cover?" class="sv-input">{{ form.get('description', '') }}</textarea>
     </div>
 
-    <div class="rounded-xl bg-violet-50 border border-violet-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-      <div class="text-sm text-violet-800"><span class="font-semibold">✨ Let AI fill the rest.</span> Subject, type, semester and tags from your title &amp; description.</div>
-      <button type="button" id="autotag" class="shrink-0 rounded-xl px-4 py-2 font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-500/30 hover:shadow-lg hover:-translate-y-px transition inline-flex items-center gap-2 justify-center">✨ Auto-tag</button>
+    <div class="rounded-2xl border border-lilac/25 bg-lilac/[.05] p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+      <div class="text-sm text-bone/75"><span class="text-lilac font-medium">Let AI fill the rest.</span> Subject, type, semester and tags from your title and description.</div>
+      <button type="button" id="autotag" class="btn btn-ai btn-sm shrink-0 justify-center"><i data-lucide="wand-sparkles"></i> Auto-tag</button>
     </div>
     <div id="tag-badge"></div>
 
     <div class="grid sm:grid-cols-3 gap-4">
       <div>
-        <label class="text-sm font-semibold">Subject *</label>
-        <select name="subject" id="subject" required class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white">
-          <option value="">Choose…</option>{% for s in SUBJECTS %}<option {{ 'selected' if form.get('subject') == s }}>{{ s }}</option>{% endfor %}
-        </select>
+        <label class="sv-label" for="subject">Subject *</label>
+        <select name="subject" id="subject" required class="sv-select"><option value="">Choose…</option>{% for s in SUBJECTS %}<option {{ 'selected' if form.get('subject') == s }}>{{ s }}</option>{% endfor %}</select>
       </div>
       <div>
-        <label class="text-sm font-semibold">Type *</label>
-        <select name="type" id="type" required class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white">
-          <option value="">Choose…</option>{% for t in TYPES %}<option {{ 'selected' if form.get('type') == t }}>{{ t }}</option>{% endfor %}
-        </select>
+        <label class="sv-label" for="type">Type *</label>
+        <select name="type" id="type" required class="sv-select"><option value="">Choose…</option>{% for t in TYPES %}<option {{ 'selected' if form.get('type') == t }}>{{ t }}</option>{% endfor %}</select>
       </div>
       <div>
-        <label class="text-sm font-semibold">Semester</label>
-        <select name="semester" id="semester" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white">
-          <option value="">—</option>{% for n in range(1, 9) %}<option value="{{ n }}" {{ 'selected' if form.get('semester') == n|string }}>Semester {{ n }}</option>{% endfor %}
-        </select>
+        <label class="sv-label" for="semester">Semester</label>
+        <select name="semester" id="semester" class="sv-select"><option value="">None</option>{% for n in range(1, 9) %}<option value="{{ n }}" {{ 'selected' if form.get('semester') == n|string }}>Semester {{ n }}</option>{% endfor %}</select>
       </div>
     </div>
     <div>
-      <label class="text-sm font-semibold">Tags <span class="font-normal text-slate-500">(comma separated)</span></label>
-      <input name="tags" id="tags" value="{{ form.get('tags', '') }}" placeholder="normalization, bcnf, keys"
-        class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">
+      <label class="sv-label" for="tags">Tags <span class="normal-case tracking-normal text-bone/40">(comma separated)</span></label>
+      <input name="tags" id="tags" value="{{ form.get('tags', '') }}" placeholder="normalization, bcnf, keys" class="sv-input">
     </div>
 
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
-        <label class="text-sm font-semibold">Link</label>
-        <input name="url" value="{{ form.get('url', '') }}" placeholder="https://drive.google.com/…"
-          class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">
+        <label class="sv-label" for="url">Link</label>
+        <input name="url" id="url" value="{{ form.get('url', '') }}" placeholder="https://drive.google.com/…" class="sv-input">
       </div>
       <div>
-        <label class="text-sm font-semibold">…or upload a PDF</label>
-        <input type="file" name="file" accept="application/pdf,.pdf"
-          class="mt-1 w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 file:px-3 file:py-2 file:font-semibold">
+        <label class="sv-label" for="file">…or upload a PDF</label>
+        <input type="file" id="file" name="file" accept="application/pdf,.pdf" class="sv-file w-full pt-1">
       </div>
     </div>
     <div>
-      <label class="text-sm font-semibold">Your name</label>
-      <input value="{{ user.name if user else '' }}" readonly title="Taken from your signed-in account"
-        class="cursor-not-allowed opacity-70 mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-300">
+      <label class="sv-label">Your name</label>
+      <input value="{{ user.name if user else '' }}" readonly title="Taken from your signed-in account" class="sv-input opacity-60 cursor-not-allowed">
     </div>
-    <button class="w-full rounded-xl px-4 py-3.5 font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:-translate-y-px transition">🚀 Share with everyone</button>
+    <button class="btn btn-ember w-full justify-center"><i data-lucide="upload"></i> Share with everyone</button>
   </form>
 </div>
 {% endblock %}
@@ -88,12 +81,13 @@
       if (d.semester) $("#semester").value = String(d.semester);
       if (d.tags?.length) $("#tags").value = d.tags.join(", ");
       ["#subject", "#type", "#semester", "#tags"].forEach((s) => {
-        $(s).classList.add("ring-2", "ring-violet-300", "bg-violet-50");
-        setTimeout(() => $(s).classList.remove("ring-2", "ring-violet-300", "bg-violet-50"), 1800);
+        $(s).classList.add("flash");
+        setTimeout(() => $(s).classList.remove("flash"), 1800);
       });
       $("#tag-badge").innerHTML = aiBadge(d.mode);
-      toast("✨ Fields filled, review and share!", "ai");
-    } catch { toast("AI is busy right now, fill manually", "err"); }
+      icons();
+      toast("Fields filled. Review and share!", "ai");
+    } catch (err) { if (!err.login) toast("AI is busy right now, fill manually", "err"); }
     setLoading(btn, false);
   });
 </script>

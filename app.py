@@ -235,7 +235,7 @@ def api_auth_session():
         return jsonify({"error": "Couldn't reach Supabase. Try again."}), 502
     email = (u.get("email") or "").lower()
     if not email.endswith(ALLOWED_DOMAIN):
-        return jsonify({"error": f"Only {ALLOWED_DOMAIN} accounts can join StudyVault."}), 403
+        return jsonify({"error": f"Only {ALLOWED_DOMAIN} accounts can join Studit."}), 403
     if not u.get("email_confirmed_at"):
         return jsonify({"error": "Confirm your email first. Check your college inbox."}), 403
     name = ((u.get("user_metadata") or {}).get("full_name") or email.split("@")[0]).strip()[:50]

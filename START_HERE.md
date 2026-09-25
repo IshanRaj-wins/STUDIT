@@ -1,4 +1,4 @@
-# StudyVault kit — fully automatic mode
+# Studit kit — fully automatic mode
 
 ## Before the timer (≈1 minute, the only manual part)
 1. Unzip into an empty folder (keep the hidden `.claude/` folder).

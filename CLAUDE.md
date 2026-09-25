@@ -1,4 +1,4 @@
-# StudyVault — Hackathon Build (HARD LIMIT: 40 minutes)
+# Studit — Hackathon Build (HARD LIMIT: 40 minutes)
 
 ## Context
 One-hour website hackathon. Scoring: Problem & Solution 20 · Use of AI 20 · Functionality 25 ·
@@ -7,7 +7,7 @@ Judges reward quality, creativity, functionality and effective AI use, not lines
 
 **Problem:** Before exams, students can't find the right notes, previous-year papers (PYQs) and
 reference material. Resources are scattered across WhatsApp groups, Google Drive links and random sites.
-**Solution:** StudyVault, one searchable hub where students share, find, upvote and request resources,
+**Solution:** Studit, one searchable hub where students share, find, upvote and request resources,
 with an AI Exam Prep Assistant that turns "exam in 3 days" into a plan built from real resources in the DB.
 **SDG:** SDG 4 (Quality Education), target 4.3/4.a: equal access to learning resources.
 

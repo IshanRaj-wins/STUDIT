@@ -1,4 +1,4 @@
-// StudyVault auth: Supabase email + password, restricted to @bmsce.ac.in.
+// Studit auth: Supabase email + password, restricted to @bmsce.ac.in.
 // The browser only holds the public publishable key; Flask re-verifies every token server-side.
 (() => {
   const DOMAIN = "@bmsce.ac.in";
@@ -65,7 +65,7 @@
     const bad = v.includes("@") && !validEmail(v) && v.split("@")[1].length >= 3;
     email.classList.toggle("bad", bad);
     email.classList.toggle("good", validEmail(v));
-    hint.textContent = bad ? `Only ${DOMAIN} emails can join StudyVault.` : validEmail(v) ? "✓ BMSCE email" : `Must end with ${DOMAIN}`;
+    hint.textContent = bad ? `Only ${DOMAIN} emails can join Studit.` : validEmail(v) ? "✓ BMSCE email" : `Must end with ${DOMAIN}`;
     hint.classList.toggle("err", bad);
   });
   // Typing just the username auto-completes the domain on blur
@@ -74,7 +74,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); clearMsg();
     const addr = email.value.trim().toLowerCase(), pw = $("#password").value, name = $("#name").value.trim();
-    if (!validEmail(addr)) { email.classList.add("bad"); return msg(`Only ${DOMAIN} emails can join StudyVault.`); }
+    if (!validEmail(addr)) { email.classList.add("bad"); return msg(`Only ${DOMAIN} emails can join Studit.`); }
     if (pw.length < 6) return msg("Password needs at least 6 characters.");
     if (mode === "signup" && name.length < 2) return msg("Tell us your name so your uploads get credit.");
 

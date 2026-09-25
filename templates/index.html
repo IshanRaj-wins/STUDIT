@@ -1,94 +1,76 @@
 {% extends "base.html" %}
+{% block title %}Browse the vault · Studit{% endblock %}
 {% block content %}
-<section class="relative overflow-hidden bg-black text-[#ede8df]">
-  <div class="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"></div>
-  <div class="absolute -top-32 -right-20 w-[34rem] h-[26rem] rounded-full bg-[#ff5005]/70 blur-[90px]"></div>
-  <div class="absolute top-24 right-48 w-[18rem] h-[14rem] rounded-full bg-[#dbba95]/45 blur-[80px]"></div>
-  <div class="absolute -bottom-40 -left-32 w-[28rem] h-[28rem] rounded-full bg-[#d0bce1]/20 blur-3xl"></div>
-  <div class="relative max-w-6xl mx-auto px-4 pt-12 sm:pt-20 pb-24 sm:pb-28 text-center">
-    <div class="inline-flex items-center gap-2 text-xs font-semibold bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 mb-6 backdrop-blur">
-      <span class="rounded-full bg-[#ff5005] text-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">New</span>
-      ✨ AI study plans from real, upvoted resources
-    </div>
-    <h1 class="text-[2.6rem] leading-[1] sm:text-7xl" style="font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.02em">Every note, PYQ and reference.<br class="hidden sm:block">
-      <em class="text-[#dbba95]">One place.</em></h1>
-    <p class="mt-5 text-base sm:text-lg text-[#ede8df]/70 max-w-2xl mx-auto leading-relaxed">No more digging through WhatsApp groups and dead Drive links the night before exams. Find what toppers actually used, and let AI plan your prep.</p>
-    <div class="mt-9 max-w-2xl mx-auto relative group">
-      <div class="absolute -inset-1 rounded-[1.25rem] bg-gradient-to-r from-[#ff5005] via-[#dbba95] to-[#ff5005] opacity-40 blur-lg group-focus-within:opacity-80 transition"></div>
-      <div class="relative">
-        <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
-        <input id="q" type="search" autocomplete="off" placeholder="Search 'normalization', 'OS PYQ 2023'…"
-          class="w-full rounded-2xl pl-14 pr-5 py-4 sm:py-5 bg-white text-slate-800 text-base sm:text-lg shadow-2xl outline-none">
+<section class="mesh-bg">
+  <div class="max-w-6xl mx-auto px-4 page-top pb-14 grid lg:grid-cols-[1fr_auto] gap-10 items-center">
+    <div class="min-w-0">
+      <div class="eyebrow-s"><i data-lucide="sparkles"></i> AI study plans from real, upvoted resources</div>
+      <h1 class="h-serif text-[2.8rem] sm:text-7xl mt-5">Every note, PYQ and reference.<br><em>One place.</em></h1>
+      <p class="mt-5 text-bone/65 max-w-xl leading-relaxed">No more digging through WhatsApp groups and dead Drive links the night before exams. Find what toppers actually used, and let AI plan your prep.</p>
+      <label class="cmd mt-8 max-w-2xl" for="q">
+        <i data-lucide="search"></i>
+        <input id="q" type="search" autocomplete="off" placeholder="Search 'normalization', 'OS PYQ 2023'…">
+        <kbd class="hidden sm:inline-grid">/</kbd>
+      </label>
+      <div id="chips" class="mt-5 -mx-4 px-4 flex sm:flex-wrap gap-2 overflow-x-auto no-scrollbar">
+        <button data-chip="" class="chip chip-s on">All</button>
+        {% for s in SUBJECTS %}<button data-chip="{{ s }}" class="chip chip-s">{{ s }}</button>{% endfor %}
       </div>
     </div>
-    <div id="chips" class="mt-6 -mx-4 px-4 flex sm:flex-wrap sm:justify-center gap-2 overflow-x-auto no-scrollbar">
-      <button data-chip="" class="chip shrink-0 text-sm rounded-full px-4 py-1.5 border border-white/25 bg-white text-black font-semibold transition">All</button>
-      {% for s in SUBJECTS %}<button data-chip="{{ s }}" class="chip shrink-0 text-sm rounded-full px-4 py-1.5 border border-white/25 bg-white/10 hover:bg-white/20 font-medium backdrop-blur transition">{{ s }}</button>{% endfor %}
-    </div>
+    <canvas data-glyph="vault" data-size="300" class="hidden lg:block"></canvas>
+  </div>
+  <div class="max-w-6xl mx-auto px-4 pb-10 flex flex-wrap gap-x-8 gap-y-2 font-mono text-[12px] uppercase tracking-wider text-bone/55">
+    <span><b class="text-ember font-medium">{{ "{:,}".format(stats.resources) }}</b> resources</span>
+    <span><b class="text-bone font-medium">{{ stats.subjects }}</b> subjects</span>
+    <span><b class="text-bone font-medium">{{ stats.contributors }}</b> contributors</span>
+    <span><b class="text-bone font-medium">{{ "{:,}".format(stats.views) }}</b> views</span>
   </div>
 </section>
 
-<section class="max-w-6xl mx-auto px-4 -mt-12 relative">
-  <div class="grid grid-cols-2 md:grid-cols-4 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-black/5 divide-x divide-y md:divide-y-0 divide-slate-100 overflow-hidden">
-    {% for label, val, emoji in [("Resources shared", stats.resources, "📄"), ("Subjects covered", stats.subjects, "🧠"), ("Student contributors", stats.contributors, "🙌"), ("Total views", stats.views, "👁")] %}
-    <div class="text-center p-4 sm:p-6 border-slate-100">
-      <div class="text-2xl sm:text-4xl font-display font-extrabold text-gradient">{{ "{:,}".format(val) }}</div>
-      <div class="text-xs sm:text-sm text-slate-500 font-medium mt-1">{{ emoji }} {{ label }}</div>
-    </div>
-    {% endfor %}
-  </div>
-</section>
-
-<section class="max-w-6xl mx-auto px-4 pt-12">
-  <div class="flex items-end justify-between mb-4">
-    <div>
-      <div class="text-xs font-bold uppercase tracking-widest text-orange-600">Hot right now</div>
-      <h2 class="text-2xl font-extrabold mt-1">🔥 Trending before exams</h2>
-      <p class="text-sm text-slate-500 mt-0.5">What students are opening and upvoting the most right now</p>
-    </div>
-  </div>
-  <div class="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 pb-3 pt-1 snap-x">
+<section class="max-w-6xl mx-auto px-4 pt-10">
+  <div class="eyebrow-s"><i data-lucide="flame"></i> Trending before exams</div>
+  <h2 class="h-serif text-4xl mt-2">What the batch is opening <em>right now</em></h2>
+  <div class="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-3 pt-5 snap-x">
     {% for t in trending %}
-    <a href="/resource/{{ t.id }}" class="group snap-start shrink-0 w-64 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-200 hover:-translate-y-1 transition duration-300 p-4 relative overflow-hidden">
-      <span class="absolute -top-3 -right-1 font-display text-6xl font-extrabold text-slate-100 group-hover:text-orange-100 transition select-none">{{ loop.index }}</span>
-      <span class="absolute top-3 right-3 text-xs font-bold text-orange-600">#{{ loop.index }}</span>
-      <span class="rounded-full text-xs px-2.5 py-0.5 font-medium border {{ {'Notes':'bg-blue-50 text-blue-700 border-blue-200','PYQ':'bg-rose-50 text-rose-700 border-rose-200'}.get(t.type, 'bg-slate-100 text-slate-700 border-slate-200') }}">{{ t.type }}</span>
-      <div class="relative font-semibold mt-3 line-clamp-2 leading-snug group-hover:text-orange-700">{{ t.title }}</div>
-      <div class="text-xs text-slate-500 mt-2">{{ t.subject }} · ▲ {{ t.upvotes }} · 👁 {{ t.views }}</div>
+    <a href="/resource/{{ t.id }}" class="sv-card lift group snap-start shrink-0 w-72 p-5 overflow-hidden">
+      <span class="absolute right-4 top-1 font-serif text-7xl text-sand/20 group-hover:text-sand/40 transition select-none">{{ loop.index }}</span>
+      <span class="type-dot" data-type="{{ t.type }}">{{ t.type }}</span>
+      <div class="relative font-medium mt-4 line-clamp-2 leading-snug pr-8">{{ t.title }}</div>
+      <div class="meta mt-3 flex items-center gap-3"><span>{{ t.subject }}</span><span class="inline-flex items-center gap-1"><i data-lucide="arrow-big-up"></i>{{ t.upvotes }}</span><span class="inline-flex items-center gap-1"><i data-lucide="eye"></i>{{ t.views }}</span></div>
     </a>
     {% endfor %}
   </div>
 </section>
 
-<section id="bookmarks" class="max-w-6xl mx-auto px-4 pt-12 hidden scroll-mt-20">
-  <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">Saved on this device</div>
-  <h2 class="text-2xl font-extrabold mt-1 mb-4">🔖 Your bookmarks</h2>
-  <div id="bm-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+<section id="bookmarks" class="max-w-6xl mx-auto px-4 pt-12 hidden scroll-mt-24">
+  <div class="eyebrow-s"><i data-lucide="bookmark"></i> Saved on this device</div>
+  <h2 class="h-serif text-4xl mt-2 mb-5">Your bookmarks</h2>
+  <div id="bm-grid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
 </section>
 
-<section id="browse" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-16">
-  <div class="flex flex-col md:flex-row md:items-end gap-4 justify-between mb-6">
+<section id="browse" class="max-w-6xl mx-auto px-4 pt-14 scroll-mt-40">
+  <div class="flex items-end justify-between gap-4 mb-5">
     <div>
-      <div class="text-xs font-bold uppercase tracking-widest text-indigo-600">The library</div>
-      <h2 class="text-2xl font-extrabold mt-1">Browse resources</h2>
-      <p id="count" class="text-sm text-slate-500 mt-0.5">Loading…</p>
+      <div class="eyebrow-s"><i data-lucide="library"></i> The library</div>
+      <h2 class="h-serif text-4xl mt-2">Browse resources</h2>
     </div>
-    <div class="grid grid-cols-2 sm:flex gap-2 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-      <select id="subject" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
-        <option value="">All subjects</option>{% for s in SUBJECTS %}<option>{{ s }}</option>{% endfor %}
-      </select>
-      <select id="semester" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
-        <option value="">All semesters</option>{% for n in range(1, 9) %}<option value="{{ n }}">Semester {{ n }}</option>{% endfor %}
-      </select>
-      <select id="type" class="rounded-xl border-0 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-sm font-medium cursor-pointer transition">
-        <option value="">All types</option>{% for t in TYPES %}<option>{{ t }}</option>{% endfor %}
-      </select>
-      <select id="sort" class="rounded-xl border-0 bg-indigo-50 text-indigo-700 px-3 py-2 text-sm font-semibold cursor-pointer">
-        <option value="top">▲ Top</option><option value="new">🆕 Newest</option><option value="views">👁 Most viewed</option>
-      </select>
+    <p id="count" class="meta pb-1">Loading…</p>
+  </div>
+  <div class="toolbar mb-6">
+    <div class="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-[rgba(10,9,8,.8)] border border-bone/10 backdrop-blur-xl">
+      <select id="subject" class="sv-select !h-11 !w-auto flex-1 sm:flex-none"><option value="">All subjects</option>{% for s in SUBJECTS %}<option>{{ s }}</option>{% endfor %}</select>
+      <select id="semester" class="sv-select !h-11 !w-auto flex-1 sm:flex-none"><option value="">All semesters</option>{% for n in range(1, 9) %}<option value="{{ n }}">Semester {{ n }}</option>{% endfor %}</select>
+      <select id="type" class="sv-select !h-11 !w-auto flex-1 sm:flex-none"><option value="">All types</option>{% for t in TYPES %}<option>{{ t }}</option>{% endfor %}</select>
+      <input type="hidden" id="sort" value="top">
+      <div class="seg sm:ml-auto" id="sort-seg">
+        <span class="seg-thumb"></span>
+        <button type="button" data-sort="top" aria-pressed="true"><i data-lucide="arrow-big-up"></i>Top</button>
+        <button type="button" data-sort="new" aria-pressed="false"><i data-lucide="clock"></i>Newest</button>
+        <button type="button" data-sort="views" aria-pressed="false"><i data-lucide="eye"></i>Most viewed</button>
+      </div>
     </div>
   </div>
-  <div id="grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+  <div id="grid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
 </section>
 {% endblock %}
 
@@ -96,6 +78,7 @@
 <script>
   const ids = ["q", "subject", "semester", "type", "sort"];
   let timer;
+  document.querySelectorAll(".type-dot[data-type]").forEach((el) => el.style.setProperty("--tc", TYPE_COLOR[el.dataset.type] || TYPE_COLOR.Syllabus));
 
   async function load() {
     const params = new URLSearchParams();
@@ -105,21 +88,30 @@
       const rows = await (await fetch("/api/resources?" + params)).json();
       $("#count").textContent = `${rows.length} resource${rows.length === 1 ? "" : "s"} found`;
       $("#grid").innerHTML = rows.length ? rows.map(cardHTML).join("") :
-        emptyState("🕵️", "Nothing here yet", "No resources match these filters. Be the hero: share one, or ask the community for it on the Request Board.", "/requests", "🙋 Request this resource");
+        emptyState("search", "Nothing here yet", "No resources match these filters. Share one, or ask the batch for it on the Request Board.", "/requests", "Request this resource");
     } catch {
-      $("#grid").innerHTML = emptyState("⚠️", "Couldn't load resources", "Check your connection and try again.");
+      $("#grid").innerHTML = emptyState("unlink", "Couldn't load resources", "Check your connection and try again.");
     }
+    icons();
     paintChips();
   }
 
   function paintChips() {
     const s = $("#subject").value;
-    document.querySelectorAll(".chip").forEach((c) => {
-      const on = c.dataset.chip === s;
-      c.classList.toggle("bg-white", on); c.classList.toggle("text-black", on); c.classList.toggle("font-semibold", on);
-      c.classList.toggle("bg-white/10", !on);
-    });
+    document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c.dataset.chip === s));
   }
+
+  // segmented sort control
+  const seg = $("#sort-seg"), thumb = seg.querySelector(".seg-thumb");
+  function paintSeg(instant) {
+    const b = seg.querySelector(`[data-sort="${$("#sort").value}"]`) || seg.querySelector("button");
+    seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    if (instant) thumb.style.transition = "none";
+    thumb.style.width = b.offsetWidth + "px"; thumb.style.transform = `translateX(${b.offsetLeft}px)`;
+    if (instant) requestAnimationFrame(() => (thumb.style.transition = ""));
+  }
+  seg.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { $("#sort").value = b.dataset.sort; paintSeg(); load(); }));
+  addEventListener("resize", () => paintSeg(true));
 
   async function loadBookmarks() {
     const bm = getBookmarks();
@@ -127,11 +119,15 @@
     if (!bm.length) return;
     const rows = await (await fetch("/api/resources?ids=" + bm.join(","))).json();
     $("#bm-grid").innerHTML = rows.map(cardHTML).join("");
+    icons();
   }
 
   $("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 250); });
   $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#browse").scrollIntoView({ behavior: "smooth" }); });
-  ["subject", "semester", "type", "sort"].forEach((id) => $("#" + id).addEventListener("change", load));
+  addEventListener("keydown", (e) => {
+    if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); $("#q").focus(); }
+  });
+  ["subject", "semester", "type"].forEach((id) => $("#" + id).addEventListener("change", load));
   document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
     $("#subject").value = c.dataset.chip; load();
     $("#browse").scrollIntoView({ behavior: "smooth" });
@@ -140,6 +136,8 @@
 
   const qs = new URLSearchParams(location.search);
   ids.forEach((id) => { if (qs.get(id)) $("#" + id).value = qs.get(id); });
+  addEventListener("load", () => paintSeg(true));
+  document.fonts?.ready.then(() => paintSeg(true));
   load();
   loadBookmarks().then(() => { if (location.hash === "#bookmarks") $("#bookmarks").scrollIntoView(); });
 </script>

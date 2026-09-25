@@ -1,54 +1,56 @@
 {% extends "base.html" %}
-{% block title %}{{ r.title }} · StudyVault{% endblock %}
+{% block title %}{{ r.title }} · Studit{% endblock %}
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-10">
-  <a href="/browse" class="text-sm text-slate-500 hover:text-indigo-600">← Back to browse</a>
-  <div class="grid gap-6 lg:grid-cols-3 mt-4">
-    <div class="lg:col-span-2 space-y-6">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-indigo-900/5 p-6 sm:p-8">
-        <div class="flex flex-wrap items-center gap-2" id="badges"></div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-3">{{ r.title }}</h1>
-        <div class="text-sm text-slate-500 mt-2">{{ r.subject }}{% if r.semester %} · Semester {{ r.semester }}{% endif %} · shared by <span class="font-medium text-slate-700">{{ r.uploader or "Anonymous" }}</span> · {{ r.created_at[:10] }}</div>
-        {% if r.description %}<p class="mt-5 text-slate-700 leading-relaxed">{{ r.description }}</p>{% endif %}
-        <div class="flex flex-wrap gap-1.5 mt-5">{% for t in r.tags %}<a href="/?q={{ t|urlencode }}#browse" class="text-xs px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">#{{ t }}</a>{% endfor %}</div>
+<div class="max-w-6xl mx-auto px-4 page-top">
+  <a href="/browse" class="meta inline-flex items-center gap-1.5 hover:text-bone"><i data-lucide="arrow-left"></i> Back to browse</a>
+  <div class="grid gap-4 lg:grid-cols-3 mt-5">
+    <div class="lg:col-span-2 space-y-4">
+      <div class="sv-card p-6 sm:p-9">
+        <div class="flex flex-wrap items-center gap-3" id="badges"></div>
+        <h1 class="h-serif text-4xl sm:text-5xl mt-4">{{ r.title }}</h1>
+        <div class="text-sm text-bone/55 mt-3">{{ r.subject }}{% if r.semester %} · Semester {{ r.semester }}{% endif %} · shared by <span class="text-bone">{{ r.uploader or "Anonymous" }}</span> · {{ r.created_at[:10] }}</div>
+        {% if r.description %}<p class="mt-6 text-bone/80 leading-relaxed">{{ r.description }}</p>{% endif %}
+        <div class="flex flex-wrap gap-1.5 mt-5">{% for t in r.tags %}<a href="/browse?q={{ t|urlencode }}#browse" class="tag-s">#{{ t }}</a>{% endfor %}</div>
 
-        <div class="flex flex-wrap gap-2 mt-7">
-          {% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener" class="rounded-xl px-5 py-2.5 font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:-translate-y-px transition">{{ "📄 Open PDF" if r.file_path else "🔗 Open resource" }}</a>{% endif %}
-          <button data-up="{{ r.id }}" onclick="upvote({{ r.id }}, this)" class="rounded-xl px-4 py-2.5 font-semibold bg-white border border-slate-200 hover:bg-indigo-50 hover:text-indigo-700">▲ Upvote · <span data-votes="{{ r.id }}">{{ r.upvotes }}</span></button>
-          <button data-bm="{{ r.id }}" onclick="toggleBookmark({{ r.id }}, this)" class="rounded-xl px-4 py-2.5 font-semibold bg-white border border-slate-200 hover:bg-slate-50">🔖 <span data-bm-label>Save</span></button>
-          <button onclick='shareWhatsApp({{ r.title|tojson }}, "/resource/{{ r.id }}")' class="rounded-xl px-4 py-2.5 font-semibold bg-[#25D366] text-white hover:opacity-90">Share on WhatsApp</button>
-          <button onclick="navigator.clipboard.writeText(location.href).then(() => toast('🔗 Link copied'))" class="rounded-xl px-4 py-2.5 font-semibold bg-white border border-slate-200 hover:bg-slate-50">Copy link</button>
+        <div class="flex flex-wrap gap-2 mt-8">
+          {% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener" class="btn btn-ember btn-sm"><i data-lucide="{{ 'file-text' if r.file_path else 'external-link' }}"></i> {{ "Open PDF" if r.file_path else "Open resource" }}</a>{% endif %}
+          <button data-up="{{ r.id }}" onclick="upvote({{ r.id }}, this)" class="btn btn-soft btn-sm upv"><i data-lucide="arrow-big-up"></i> Upvote · <span data-votes="{{ r.id }}">{{ r.upvotes }}</span></button>
+          <button data-bm="{{ r.id }}" onclick="toggleBookmark({{ r.id }}, this)" class="btn btn-soft btn-sm"><i data-lucide="bookmark"></i> <span data-bm-label>Save</span></button>
+          <button onclick='shareWhatsApp({{ r.title|tojson }}, "/resource/{{ r.id }}", this)' class="btn btn-wa btn-sm"><i data-lucide="send"></i> WhatsApp</button>
+          <button onclick="navigator.clipboard.writeText(location.href).then(() => toast('Link copied'))" class="btn btn-soft btn-sm"><i data-lucide="link"></i> Copy link</button>
         </div>
-        <div class="text-sm text-slate-500 mt-4">👁 {{ r.views }} views</div>
+        <div class="meta mt-5 inline-flex items-center gap-1.5"><i data-lucide="eye"></i> {{ r.views }} views</div>
       </div>
 
-      <div id="ai-box" class="relative overflow-hidden bg-white rounded-2xl border border-violet-200 shadow-sm p-6 sm:p-8"><div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500"></div>
-        <div class="flex flex-wrap items-center justify-between gap-3">
+      <div id="ai-box" class="sv-card p-6 sm:p-9">
+        <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-lg font-bold">✨ Key topics &amp; likely exam questions</h2>
-            <p class="text-sm text-slate-500">AI reads this resource and tells you what to focus on.</p>
+            <div class="eyebrow-s !text-lilac"><i data-lucide="sparkles"></i> AI study notes</div>
+            <h2 class="h-serif text-3xl mt-2">Key topics &amp; <em>likely questions</em></h2>
+            <p class="text-sm text-bone/55 mt-1">AI reads this resource and tells you what to focus on.</p>
           </div>
-          <button id="insights-btn" class="rounded-xl px-4 py-2 font-semibold bg-violet-50 text-violet-700 border border-violet-200 hover:bg-violet-100 inline-flex items-center gap-2">✨ Key topics</button>
+          <button id="insights-btn" class="btn btn-ai btn-sm"><i data-lucide="sparkles"></i> Key topics</button>
         </div>
-        <div id="insights" class="mt-5"></div>
+        <div id="insights" class="mt-6"></div>
       </div>
     </div>
 
     <aside class="space-y-4">
-      <div class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-700 text-white rounded-2xl p-6 shadow-xl shadow-indigo-500/20"><div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-fuchsia-400/30 blur-2xl"></div>
-        <div class="font-bold text-lg">Exam coming up?</div>
-        <p class="text-sm text-indigo-100 mt-1">Get a day-by-day {{ r.subject }} plan built from the best resources on StudyVault.</p>
-        <a href="/ask?subject={{ r.subject|urlencode }}" class="relative inline-block mt-4 rounded-xl px-4 py-2 font-semibold bg-white text-indigo-700 hover:-translate-y-px hover:shadow-lg transition">✨ Build my plan</a>
+      <div class="mesh-bg rounded-[18px] border border-bone/10 p-6">
+        <canvas data-glyph="sparkles" data-size="84" data-cell="4" class="mb-3"></canvas>
+        <div class="font-serif text-3xl leading-tight">Exam coming up?</div>
+        <p class="text-sm text-bone/65 mt-2">Get a day-by-day {{ r.subject }} plan built from the best resources on Studit.</p>
+        <a href="/ask?subject={{ r.subject|urlencode }}" class="btn btn-ember btn-sm mt-5">Build my plan <span class="arrow">→</span></a>
       </div>
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-        <div class="font-semibold mb-3">More in {{ r.subject }}</div>
+      <div class="sv-card p-5">
+        <div class="sv-label">More in {{ r.subject }}</div>
         {% for x in related %}
-        <a href="/resource/{{ x.id }}" class="block py-2.5 border-t border-slate-100 first:border-0 hover:text-indigo-700">
-          <div class="text-sm font-medium line-clamp-2">{{ x.title }}</div>
-          <div class="text-xs text-slate-500 mt-0.5">{{ x.type }} · ▲ {{ x.upvotes }}</div>
+        <a href="/resource/{{ x.id }}" class="group block py-3 border-t border-bone/[.07] first-of-type:border-0">
+          <div class="text-sm line-clamp-2 group-hover:text-white text-bone/85">{{ x.title }}</div>
+          <div class="meta mt-1">{{ x.type }} · ▲ {{ x.upvotes }}</div>
         </a>
         {% else %}
-        <p class="text-sm text-slate-500">📭 Nothing else yet. <a href="/add" class="text-indigo-600 font-medium">Share one?</a></p>
+        <p class="text-sm text-bone/55">Nothing else yet. <a href="/add" class="text-ember">Share one?</a></p>
         {% endfor %}
       </div>
     </aside>
@@ -59,29 +61,30 @@
 {% block scripts %}
 <script>
   $("#badges").innerHTML = typeBadge({{ r.type|tojson }});
-  if (new URLSearchParams(location.search).get("added")) toast("🎉 Resource added. Thanks for sharing!");
+  try { if (localStorage.getItem("sv_voted_{{ r.id }}")) $(".upv").classList.add("!border-ember", "!text-ember"); } catch {}
+  if (new URLSearchParams(location.search).get("added")) toast("Resource added. Thanks for sharing!");
 
   $("#insights-btn").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
     setLoading(btn, true, "Analyzing…");
     try {
       const d = await postJSON("/api/ai/insights/{{ r.id }}");
-      const li = (arr, cls) => arr.map((x) => `<li class="${cls}">${esc(x)}</li>`).join("");
-      $("#insights").innerHTML = `<div class="fade-in space-y-5">
+      $("#insights").innerHTML = `<div class="fade-in space-y-6">
         <div>${aiBadge(d.mode)}</div>
-        <p class="text-slate-700 leading-relaxed">${esc(d.summary)}</p>
+        <p class="text-bone/80 leading-relaxed">${esc(d.summary)}</p>
         <div>
-          <div class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Key topics</div>
-          <div class="flex flex-wrap gap-2">${d.key_topics.map((t) => `<span class="text-sm px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">${esc(t)}</span>`).join("")}</div>
+          <div class="sv-label">Key topics</div>
+          <div class="flex flex-wrap gap-2">${d.key_topics.map((t) => `<span class="text-sm px-3 py-1 rounded-full border border-lilac/30 bg-lilac/[.07] text-lilac">${esc(t)}</span>`).join("")}</div>
         </div>
         <div>
-          <div class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Likely exam questions</div>
-          <ol class="list-decimal pl-5 space-y-1.5 text-slate-700">${li(d.likely_questions, "")}</ol>
+          <div class="sv-label">Likely exam questions</div>
+          <ol class="space-y-2.5">${d.likely_questions.map((q, i) => `<li class="flex gap-3 text-bone/80"><span class="font-mono text-xs text-ember pt-1">Q${i + 1}</span><span>${esc(q)}</span></li>`).join("")}</ol>
         </div>
       </div>`;
-      toast(d.mode === "offline" ? "⚡ Generated in offline mode" : "✨ Insights ready", "ai");
-    } catch {
-      toast("AI is busy right now, try again", "err");
+      icons();
+      toast(d.mode === "offline" ? "Generated in offline mode" : "Insights ready", "ai");
+    } catch (err) {
+      if (!err.login) toast("AI is busy right now, try again", "err");
     }
     setLoading(btn, false);
   });

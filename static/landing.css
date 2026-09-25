@@ -2,16 +2,6 @@
 #smooth { position: relative; z-index: 3; }
 .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: #050505; opacity: 0; }
 
-.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding: 18px 0; transition: background .4s, padding .4s, border-color .4s; border-bottom: 1px solid transparent; }
-.nav.scrolled { padding: 10px 0; background: rgba(5,5,5,.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--line); }
-.nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.brand { display: flex; align-items: center; gap: 10px; font-size: 26px; }
-.brand-ring { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--ember); box-shadow: 0 0 18px rgba(255,80,5,.6); }
-.nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--muted); }
-.nav-links a { transition: color .2s; }
-.nav-links a:hover { color: var(--bone); }
-.nav-cta { height: 40px; padding: 0 16px; font-size: 14px; }
-.avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--ember); color: #000; display: grid; place-items: center; font-weight: 600; font-size: 12px; margin-right: -8px; }
 
 /* hero */
 .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-top: 90px; position: relative; }
@@ -44,16 +34,15 @@
 .chip b { color: var(--sand); font-weight: 500; }
 .chip i { color: var(--ember); font-style: normal; }
 .problem-copy { position: relative; text-align: center; padding: 0 16px; display: grid; place-items: center; }
+/* scrim: keeps the problem titles readable over the brightest part of the halo */
+.problem-copy { isolation: isolate; }
+.problem-copy::before { content: ""; position: absolute; inset: -40% -25%; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(5,5,5,.62), rgba(5,5,5,.25) 60%, transparent); }
 .p-title { font-size: clamp(2.4rem, 6.4vw, 6rem); line-height: 1; margin: 14px 0 0; text-wrap: balance; }
 .p-title-2 { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); opacity: 0; margin: 0; }
 
 /* features: horizontal */
 .features { position: relative; padding: 14vh 0 10vh; overflow: hidden; }
 .features-head h2 { font-size: clamp(2.4rem, 5.6vw, 5rem); margin: 12px 0 0; line-height: 1; }
-.track { display: flex; gap: 24px; padding: 6vh max(16px, calc((100vw - 1200px) / 2)) 0; width: max-content; will-change: transform; }
-.panel { width: min(1040px, 82vw); min-height: 440px; padding: 40px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; }
-.panel h3 { font-size: clamp(1.9rem, 3.2vw, 3rem); line-height: 1.02; margin: 14px 0 0; }
-.panel p { line-height: 1.6; margin: 16px 0 0; }
 .link { display: inline-flex; gap: 8px; margin-top: 22px; color: var(--bone); border-bottom: 1px solid rgba(237,232,223,.3); padding-bottom: 4px; font-size: 15px; }
 .link:hover { border-color: var(--ember); }
 .link .arrow { transition: transform .25s; } .link:hover .arrow { transform: translateX(4px); }
@@ -116,17 +105,54 @@
 /* intro state (JS removes .is-loading) */
 .is-loading .reveal-up, .is-loading .hero-foot { opacity: 0; }
 
+/* scroll progress */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 50; background: linear-gradient(90deg, var(--ember), var(--sand)); transform-origin: 0 50%; transform: scaleX(0); box-shadow: 0 0 12px rgba(255,80,5,.7); }
+
+/* problem glyph core */
+.p-core { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0; pointer-events: none; }
+.chip .lucide { color: var(--sand); margin-right: 4px; }
+
+/* bento */
+.bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 7vh; }
+.tile { padding: 28px; display: flex; flex-direction: column; gap: 14px; background: rgba(14,13,12,.66); backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2); border-radius: 22px; }
+.tile h3 { font-size: clamp(1.7rem, 2.4vw, 2.3rem); line-height: 1.04; margin: 0; }
+.tile p { line-height: 1.6; margin: 0; }
+.tile .link { margin-top: auto; align-self: flex-start; }
+.tile-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding-right: 70px; }
+.tile-top canvas { position: absolute; right: 18px; top: 16px; width: 64px !important; }
+.t-search { grid-column: span 3; display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: center; padding: 40px; }
+.t-search h3 { font-size: clamp(2rem, 3.2vw, 3rem); margin-top: 14px; }
+.t-search p { margin-top: 16px; }
+.t-search .link { margin-top: 22px; }
+.t-ai, .t-req { grid-column: span 3; }
+@media (min-width: 861px) { .t-ai { grid-column: span 2; } .t-req { grid-column: span 1; } .t-small { grid-column: span 1; } .bento > .t-small:last-child { grid-column: span 2; } }
+.mock-search .lucide { color: var(--muted); }
+
+/* sdg art */
+.sdg-art { position: relative; width: 200px; }
+.sdg-art .sdg-badge { position: absolute; right: -14px; bottom: -14px; width: 96px; height: 96px; border-radius: 22px; }
+.sdg-art .sdg-badge .serif { font-size: 54px; }
+
 /* ---------- mobile ---------- */
 @media (max-width: 860px) {
-  .nav-links { display: none; }
-  .brand { font-size: 22px; }
   .hero-title { max-width: 100%; }
   .hero-foot { position: static; margin-top: 56px; gap: 16px 22px; }
   .scroll-cue { display: none; }
   .chip { font-size: 12px; padding: 8px 12px; }
   .chip:nth-child(n+6) { display: none; }
-  .track { width: auto; flex-direction: column; padding-inline: 16px; }
-  .panel { width: 100%; grid-template-columns: 1fr; padding: 24px; gap: 24px; min-height: 0; }
+  .bento { grid-template-columns: 1fr; }
+  /* no backdrop blur over the live WebGL layer on phones: solid panels composite far cheaper */
+  .tile, .glass, .chip, .num-grid > div, .eyebrow { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .tile { background: rgba(14,13,12,.9); }
+  .chip { background: rgba(14,13,12,.9); }
+  .num-grid > div { background: rgba(5,5,5,.88); }
+  .t-search { grid-column: auto; grid-template-columns: 1fr; gap: 24px; padding: 22px; }
+  .tile { padding: 22px; }
+  .mock { padding: 14px; }
+  .p-core { width: 240px !important; }
+  .sdg-art canvas { display: none; }
+  .sdg-art { width: auto; }
+  .sdg-art .sdg-badge { position: static; }
   .num-grid { grid-template-columns: repeat(2, 1fr); }
   .num-grid > div { padding: 24px 18px; }
   .sdg-in { grid-template-columns: 1fr; gap: 24px; }

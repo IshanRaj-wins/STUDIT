@@ -138,7 +138,7 @@ def _plan_fallback(subject, days, weak, res):
                      "Quick 15-min recap of the previous day"]
         out.append({"day": i, "focus": focus, "tasks": tasks, "resources": list({r["id"]: r for r in picks}.values())})
     return {"mode": "offline", "subject": subject,
-            "summary": f"A {days}-day {subject} plan built from the most upvoted resources on StudyVault"
+            "summary": f"A {days}-day {subject} plan built from the most upvoted resources on Studit"
                        + (f", starting with your weak areas ({', '.join(weak_list)})." if weak_list else "."),
             "days": out,
             "tips": ["Use active recall: close the notes and write what you remember.",

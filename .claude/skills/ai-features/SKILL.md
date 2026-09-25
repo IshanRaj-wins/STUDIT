@@ -1,6 +1,6 @@
 ---
 name: ai-features
-description: How to implement StudyVault's AI features with the Gemini API plus offline fallbacks. Use when writing ai.py or any /api/ai route.
+description: How to implement Studit's AI features with the Gemini API plus offline fallbacks. Use when writing ai.py or any /api/ai route.
 ---
 # AI features (20 marks) — reliable, visible, grounded in the database
 

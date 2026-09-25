@@ -18,7 +18,7 @@
        return '{}'::jsonb;
      end if;
      return jsonb_build_object('error', jsonb_build_object(
-       'message', 'Only @bmsce.ac.in emails can join StudyVault.', 'http_code', 403));
+       'message', 'Only @bmsce.ac.in emails can join Studit.', 'http_code', 403));
    end $$;
 
    grant execute on function public.hook_bmsce_only to supabase_auth_admin;

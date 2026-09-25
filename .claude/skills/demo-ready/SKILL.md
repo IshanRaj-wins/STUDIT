@@ -1,6 +1,6 @@
 ---
 name: demo-ready
-description: Final-minutes checklist for StudyVault — seed data quality, README, pitch script. Use when asked to finalize, prepare the demo, or write the README.
+description: Final-minutes checklist for Studit — seed data quality, README, pitch script. Use when asked to finalize, prepare the demo, or write the README.
 ---
 # Demo readiness (Creativity & Presentation 10 + Impact 10)
 
