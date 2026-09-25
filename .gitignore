@@ -20,3 +20,6 @@ server.err.log
 .claude/settings.local.json
 *.pyc
 !.env.example
+
+# private pitch notes (kept local)
+PITCH_SCRIPT.md

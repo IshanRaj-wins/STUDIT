@@ -85,3 +85,4 @@ One line per major change or bug. Newest section at the bottom.
 - BUG fixed: footer search button overflowed on narrow phones (grid column min-width).
 
 - Security audit 3: no new issues (pip-audit clean, all innerHTML escaped, CSRF/traversal/SQLi/open-redirect probes blocked, 0 CSP errors); redeployed Studit to study-recon.vercel.app. studit.vercel.app is taken by another account.
+- Repo: added README.md for public GitHub; PITCH_SCRIPT.md untracked + gitignored (kept locally).
